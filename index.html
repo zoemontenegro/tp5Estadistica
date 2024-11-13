@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="logoIdra.png" type="image/x-icon">
+    <title>Correlación entre Variables Meteorológicas</title>
+</head>
+
+<header>
+    <div class="navbar">
+        <img src="logoIdra.png" alt="logo idra">
+        <h1>Correlación entre Variables Meteorológicas</h1>
+    </div>
+</header>
+
+<body>
+
+    <div class="container">
+        <div id="resultados" class="row">
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = "https://apidemo.geoeducacion.com.ar/api/testing/pearson/1";
+
+        // Calcular el coeficiente de Pearson
+        function calcularPearson(x, y) {
+            const n = x.length;
+            const mediaX = x.reduce((a, b) => a + b) / n;
+            const mediaY = y.reduce((a, b) => a + b) / n;
+            let num = 0, den1 = 0, den2 = 0;
+
+            for (let i = 0; i < n; i++) {
+                num += (x[i] - mediaX) * (y[i] - mediaY);
+                den1 += Math.pow(x[i] - mediaX, 2);
+                den2 += Math.pow(y[i] - mediaY, 2);
+            }
+
+            return num / Math.sqrt(den1 * den2);
+        }
+
+
+        // Pocesar y mostrar los resultados
+        async function obtenerDatosYCalcular() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.success) {
+                    const valores = data.data[0].valores;
+
+                    // Extraer datos por variable
+                    const presion = valores.map(d => d.presion);
+                    const temperatura = valores.map(d => d.temperatura);
+                    const humedad = valores.map(d => d.humedad);
+                    const viento = valores.map(d => d.viento);
+
+                    // Calcular coeficientes de Pearson
+                    const resultados = [
+                        { vars: "Presión y Temperatura", valor: calcularPearson(presion, temperatura) },
+                        { vars: "Presión y Humedad", valor: calcularPearson(presion, humedad) },
+                        { vars: "Presión y Velocidad del Viento", valor: calcularPearson(presion, viento) },
+                        { vars: "Temperatura y Humedad", valor: calcularPearson(temperatura, humedad) },
+                        { vars: "Temperatura y Velocidad del Viento", valor: calcularPearson(temperatura, viento) },
+                        { vars: "Humedad y Velocidad del Viento", valor: calcularPearson(humedad, viento) },
+                    ];
+
+                    // Ordenar los resultados por valor absoluto del coeficiente
+                    resultados.sort((a, b) => Math.abs(b.valor) - Math.abs(a.valor));
+
+                    // Mostrar resultados en el DOM
+                    const resultadosDiv = document.getElementById("resultados");
+                    resultados.forEach(resultado => {
+                        const card = document.createElement("div");
+                        card.className = "col-sm-6 mb-3";
+
+                        card.innerHTML = `
+          <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">${resultado.vars}</h5>                          
+                <p class="card-text">Coeficiente de Pearson: ${resultado.valor.toFixed(4)}</p>
+                <p class="card-text">${interpretarCorrelacion(resultado.valor)}</p>
+            </div>
+        </div>
+    `;
+                        resultadosDiv.appendChild(card);
+                    });
+                }
+
+            } catch (error) {
+                console.error("Error al obtener datos de la API:", error);
+            }
+        }
+
+        // Interpretar el valor de correlación
+        function interpretarCorrelacion(valor) {
+            if (valor > 0.7) return "Fuerte correlación positiva.";
+            if (valor > 0.3) return "Correlación positiva moderada.";
+            if (valor > 0) return "Correlación positiva baja.";
+            if (valor < -0.7) return "Fuerte correlación negativa.";
+            if (valor < -0.3) return "Correlación negativa moderada.";
+            if (valor < 0) return "Correlación negativa baja.";
+            return "No hay correlación lineal significativa.";
+        }
+
+
+        obtenerDatosYCalcular();</script>
+</body>
+
+</html>

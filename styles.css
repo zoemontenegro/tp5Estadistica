@@ -1,0 +1,59 @@
+body {
+
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: url('background.jpg') no-repeat center center fixed;
+    background-size: cover;
+
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    background-color: #1e2859;
+    padding: 10px;
+}
+
+h1 {
+    text-align: center;
+    color: white;
+    flex-grow: 1;
+}
+
+.container {
+    margin-top: 40px;
+}
+
+
+/* Estilo para la tarjeta */
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.8s ease;
+    margin-bottom: 20px;
+}
+
+
+.card:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    padding: 30px;
+    background-color: #f9f9f9;
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+}
+
+
+.card-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.card-text {
+    font-size: 14px;
+    color: #555;
+}
